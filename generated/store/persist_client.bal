@@ -1,6 +1,6 @@
 import ballerina/jballerina.java;
 import ballerina/persist;
-import ballerinax/persist.inmemory;
+import bookstore.persist.inmemory;
 
 
 const BOOK = "books";

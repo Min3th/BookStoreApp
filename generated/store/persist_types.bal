@@ -1,51 +1,39 @@
-import ballerina/jballerina.java;
-import ballerina/persist;
-import ballerinax/persist.inmemory;
+public type Book record {|
+    readonly int id;
+    string book_title;
+    string author;
+    string category;
+    int published_year;
+    decimal price;
+    int copies_in_stock;|};
 
+public type BookRequest record {|
+    int id;
+    string book_title;
+    string author;
+    string category;
+    int published_year;
+    decimal price;
+    int copies_in_stock;
+|}; 
 
-const BOOK = "books";
+public type BookOptionalized record {|
+    int id?;
+    string book_title?;
+    string author?;
+    string category?;
+    int published_year?;
+    decimal price?;
+    int copies_in_stock?;|};
 
-final isolated table<Book> key(id) booksTable = table [];
+public type BookTargetType typedesc<BookOptionalized>;
 
-public isolated client class Client {
-    *persist:AbstractPersistClient;
+public type BookInsert Book;
 
-    private final map<inmemory:InMemoryClient> persistClients;
-
-    public isolated function init() returns persist:Error? {
-        final map<inmemory:TableMetadata> metadata = {
-            [BOOK] : {
-                keyFields : ["id"],
-                query: queryBooks,
-                queryOne: queryOneBooks
-            }
-        };
-
-        self.persistClients = {[BOOK] : check new (metadata.get(BOOK).cloneReadOnly())};
-    }
-
-    isolated resource function get books(BookTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {'class:"io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor",
-    name: "query"} external;
-
-    isolated resource function get books/[int id](BookTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor"
-        name: "queryOne"
-    }external;
-
-    isolated resource function post books(BookInsert[] data) returns int[]|persist:Error{
-        int[] keys = [];
-        foreach BookInsert value in data{
-            lock{
-                if booksTable.hasKey(value.id){
-                    return persist:getAlreadyExistsError("Book",value.id);
-                }
-                booksTable.put(value.clone());
-            }
-            keys.push(value.id);
-        }
-        return keys;
-    }
-}
-
-
-    
+public type BookUpdate record {|
+    string book_title?;
+    string author?;
+    string category?;
+    int published_year?;
+    decimal price?;
+    int copies_in_stock?;|};
