@@ -1,6 +1,8 @@
 import ballerina/jballerina.java;
 import ballerina/persist;
-import bookstore.persist.inmemory;
+import ballerinax/persist.inmemory;
+
+
 
 
 const BOOK = "books";
@@ -28,7 +30,7 @@ public isolated client class Client {
     name: "query"} external;
 
     isolated resource function get books/[int id](BookTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor"
+        'class: "io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor",
         name: "queryOne"
     }external;
 
@@ -80,7 +82,7 @@ public isolated client class Client {
 
 }
 
-isolated function queryBooks(string[] fields) returns stream<record {} persist:Error?>{
+isolated function queryBooks(string[] fields) returns stream<record {},persist:Error?>{
     table<Book> key(id) booksClonedTable;
     lock{
         booksClonedTable = booksTable.clone();
