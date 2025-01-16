@@ -6,3 +6,13 @@ distribution = "2201.10.3"
 
 [build-options]
 observabilityIncluded = true
+
+[[dependency]]
+org = "ballerina"
+name = "persist"
+version = "1.4.0"
+
+[[dependency]]
+org = "ballerinax"
+name = "persist.inmemory"
+version = "1.4.0"

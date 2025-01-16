@@ -5,6 +5,7 @@ import ballerinax/persist.inmemory;
 
 
 
+
 const BOOK = "books";
 
 final isolated table<Book> key(id) booksTable = table [];
@@ -26,13 +27,13 @@ public isolated client class Client {
         self.persistClients = {[BOOK] : check new (metadata.get(BOOK).cloneReadOnly())};
     }
 
-    isolated resource function get books(BookTargetType targetType = <>) returns stream<targetType, persist:Error?> = @java:Method {'class:"io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor",
-    name: "query"} external;
+    isolated resource function get books(BookTargetType targetType = <>) returns stream<targetType, persist:Error?> {
+        return queryBooks([]);
+    }
 
-    isolated resource function get books/[int id](BookTargetType targetType = <>) returns targetType|persist:Error = @java:Method {
-        'class: "io.ballerina.stdlib.persist.inmemory.datastore.InMemoryProcessor",
-        name: "queryOne"
-    }external;
+    isolated resource function get books/[int id](BookTargetType targetType = <>) returns targetType|persist:Error{
+        return queryOneBooks(id);
+    }
 
     isolated resource function post books(BookInsert[] data) returns int[]|persist:Error{
         int[] keys = [];
@@ -82,16 +83,16 @@ public isolated client class Client {
 
 }
 
-isolated function queryBooks(string[] fields) returns stream<record {},persist:Error?>{
+isolated function queryBooks(string[] fields) returns stream<Book,persist:Error?>{
     table<Book> key(id) booksClonedTable;
     lock{
         booksClonedTable = booksTable.clone();
     }
-    return from record {} 'object in booksClonedTable
+    return from Book 'object in booksClonedTable
         select persist:filterRecord({...'object}, fields);
 }
 
-isolated function queryOneBooks(anydata key) returns record{}|persist:NotFoundError{
+isolated function queryOneBooks(anydata key) returns Book|persist:NotFoundError{
     table<Book> key(id) booksClonedTable;
     lock {
         booksClonedTable = booksTable.clone();
@@ -106,3 +107,4 @@ isolated function queryOneBooks(anydata key) returns record{}|persist:NotFoundEr
     return persist:getNotFoundError("Book", key);
 }
     
+
