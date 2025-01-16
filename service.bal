@@ -13,16 +13,26 @@ service / on new http:Listener(9090){
         
     }
 
-    resource function get books/[int id]() returns store:Book|error {
-
-        return check sClient->/books/[id];
+    resource function get books/[int id]() returns store:Book|persist:NotFoundError {
+        
+        var result = sClient->/books/[id];
+        if (result is persist:NotFoundError) {
+            return result;
+        }
+        return <store:Book>result;
         
     }
 
     resource function get books() returns store:Book[]|error {
-        stream<store:Book,persist:Error?> resultStream = sClient->/books;
-        return check from store:Book book in resultStream
-            select book;
+        stream<record {|anydata...;|},persist:Error?> resultStream = sClient->/books;
+
+        store:Book[] booksArray = [];
+        check from record {|anydata...;|} bookRecord in resultStream
+            do{
+                store:Book book =<store:Book> bookRecord;
+                booksArray.push(book);
+            };
+        return booksArray;
     }
 
     //instead of directly mapping to an array we have used a stream to allow data to be processed incrementally, instead of having to load the entire data set at once.

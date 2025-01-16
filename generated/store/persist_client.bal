@@ -98,7 +98,7 @@ isolated function queryOneBooks(anydata key) returns Book|persist:NotFoundError{
     }
     from Book book in booksClonedTable where persist:getKey(book,["id"])== key
     do {
-        return {...book};
+        return book;
     };
     return persist:getNotFoundError("Book", key);
 }
