@@ -21,6 +21,32 @@ public isolated client class Client {
         };
 
         self.persistClients = {[BOOK] : check new (metadata.get(BOOK).cloneReadOnly())};
+
+        self.addInitialData();
+    }
+
+    isolated function addInitialData(){
+        lock {
+            booksTable.put({
+                id: 1,
+                book_title: "The Great Gatsby",
+                author: "F. Scott Fitzgerald",
+                category: "Fiction",
+                published_year: 1925,
+                price: 10.99,
+                copies_in_stock: 5
+            });
+
+            booksTable.put({
+                id: 2,
+                book_title: "To Kill a Mockingbird",
+                author: "Harper Lee",
+                category: "Fiction",
+                published_year: 1960,
+                price: 7.99,
+                copies_in_stock: 10
+            });
+        }
     }
 
     isolated resource function get books() returns stream<record {|anydata...;|}, persist:Error?> {
